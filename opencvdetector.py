@@ -1,17 +1,29 @@
+###############################################################################
+#  Program Name   : Apriltag Project
+#  Author         : Yazan Elliethy
+#  Date           : 2025-09-22
+#  Class/Section  : ICS3U, Section 01
+#  Description    : This program takes an input from a camera, then scans for
+# april tag position.
+#  Input          : Webacm.
+#  Output         : Print apriltag location on window of camera stream.
+###############################################################################
+
 from pupil_apriltags import Detector
 from PIL import Image
 import numpy
 import cv2
 
-# Open the default webcam (usually device 0)
+# Open camera
 cap = cv2.VideoCapture(0)
 
 if not cap.isOpened():
     print("Error: Could not open webcam.")
     exit()
 
+# Capture and process each frame
+
 while True:
-    # Capture frame-by-frame
     ret, frame = cap.read()
     
     if not ret:
@@ -33,17 +45,33 @@ while True:
                         decode_sharpening=0.25,
                         debug=0)
 
-    tags = detector.detect(numpyImg, estimate_tag_pose=True, camera_params=[2.0, 3.7, 320.0, 240.0], tag_size=15.0)
+    tags = detector.detect(
+        numpyImg, estimate_tag_pose=True, 
+        camera_params=[2.0, 3.7, 320.0, 240.0], 
+        tag_size=8.0
+    )
 
-    text = "Text"
+    if(tags):
+        text = f"{tags[0].pose_t}"
+    else:
+        text="e"
     print(tags)
     font = cv2.FONT_HERSHEY_SIMPLEX
     org = 00, 185
     fontScale = 0.5
-    color = (0, 0, 0)
-    thickness = 2
+    color = (255, 255, 0)
+    thickness = 1
 
-    modifiedImg = cv2.putText(frame, text, org, font, fontScale, color, thickness, cv2.LINE_AA, True) 
+    modifiedImg = cv2.putText(frame, 
+        text, 
+        org, 
+        font, 
+        fontScale, 
+        color, 
+        thickness, 
+        cv2.LINE_AA, 
+        False
+    ) 
 
     cv2.imshow('Webcam Feed', modifiedImg)
 
