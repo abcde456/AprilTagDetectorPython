@@ -9,7 +9,7 @@
 #  Output         : Print apriltag location on window of camera stream.
 ###############################################################################
 
-from pupil_apriltags import Detector
+from pyapriltags import Detector
 from PIL import Image
 import numpy
 import cv2
@@ -22,6 +22,12 @@ if not cap.isOpened():
     exit()
 
 # Capture and process each frame
+
+with open("log.txt", "r+") as f:
+    data = f.read()
+    f.seek(0)
+    f.write("")
+    f.truncate()
 
 while True:
     ret, frame = cap.read()
@@ -48,18 +54,21 @@ while True:
     tags = detector.detect(
         numpyImg, estimate_tag_pose=True, 
         camera_params=[2.0, 3.7, 320.0, 240.0], 
-        tag_size=8.0
+        tag_size=0.15
     )
 
     if(tags):
-        text = f"{tags[0].pose_t}"
+        text = f"{tags[0].pose_t[0]*100}, {tags[0].pose_t[1]*100}, {tags[0].pose_t[2]*100}"
     else:
-        text="e"
+        text="N/A"
     print(tags)
+    with open('log.txt', 'a') as f:
+        f.write("\n"+text)
+
     font = cv2.FONT_HERSHEY_SIMPLEX
     org = 00, 185
     fontScale = 0.5
-    color = (255, 255, 0)
+    color = (0, 0, 255)
     thickness = 1
 
     modifiedImg = cv2.putText(frame, 
