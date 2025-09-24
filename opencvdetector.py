@@ -13,6 +13,8 @@ from pyapriltags import Detector
 from PIL import Image
 import numpy
 import cv2
+from numpy import pi
+import euler
 
 # Open camera
 cap = cv2.VideoCapture(0)
@@ -58,16 +60,19 @@ while True:
     )
 
     if(tags):
-        text = f"{tags[0].pose_t[0]*100}, "
-        text = text + f"{tags[0].pose_t[1]*100}, {tags[0].pose_t[2]*100}"
+        text = f"{tags[0].pose_t[0]*100}"
+        a, b, c = euler.angles("xyz", tags[0].pose_R)
+        textTwo = f"{a}, {b}, {c}"
     else:
         text="N/A"
+        textTwo = ""
     print(tags)
     with open('log.txt', 'a') as f:
         f.write("\n"+text)
 
     font = cv2.FONT_HERSHEY_SIMPLEX
     org = 00, 185
+    orgTwo = 00, 145
     fontScale = 0.5
     color = (0, 0, 255)
     thickness = 1
@@ -75,6 +80,17 @@ while True:
     modifiedImg = cv2.putText(frame, 
         text, 
         org, 
+        font, 
+        fontScale, 
+        color, 
+        thickness, 
+        cv2.LINE_AA, 
+        False
+    )
+
+    modifiedImgTwo = cv2.putText(modifiedImg, 
+        textTwo, 
+        orgTwo, 
         font, 
         fontScale, 
         color, 
