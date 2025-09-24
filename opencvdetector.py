@@ -53,12 +53,13 @@ while True:
 
     tags = detector.detect(
         numpyImg, estimate_tag_pose=True, 
-        camera_params=[2.0, 3.7, 320.0, 240.0], 
+        camera_params=[2.0, 3.7, 640.0, 480.0], 
         tag_size=0.15
     )
 
     if(tags):
-        text = f"{tags[0].pose_t[0]*100}, {tags[0].pose_t[1]*100}, {tags[0].pose_t[2]*100}"
+        text = f"{tags[0].pose_t[0]*100}, "
+        text = text + f"{tags[0].pose_t[1]*100}, {tags[0].pose_t[2]*100}"
     else:
         text="N/A"
     print(tags)
