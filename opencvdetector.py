@@ -23,6 +23,8 @@ import keyboard
 cap = cv2.VideoCapture(0)
 
 tagSizeFloat = 0.15
+promptText = ""
+inPromptResize = False
 
 keyboard.add_hotkey('v', lambda: print('V was pressed'))
 keyboard.add_hotkey('m', lambda: print('M was pressed'))
@@ -64,16 +66,18 @@ while True:
 
     tags = detector.detect(
         numpyImg, estimate_tag_pose=True, 
-        camera_params=[2.0, 3.7, 640.0, 480.0], 
+        camera_params=[526.0, 468.0, 640.0, 480.0], 
         tag_size=tagSizeFloat
     )
 
-    if(tags):
-        distText = f"Dist: {tags[0].pose_t[0]*100}"
+    if tags:
+        distText = f"Dist: X: {tags[0].pose_t[0]*100}, Y: {tags[0].pose_t[1]*100}, Z: {tags[0].pose_t[2]*100}"
         a, b, c = euler.angles("xyz", tags[0].pose_R)
         rotText = f"Rot: X: {round(a*(180/math.pi), 2)}, "
         rotText = rotText + f"Y: {round(b*(180/math.pi), 2)}, "
         rotText = rotText + f"Z: {round(c*(180/math.pi), 2)}"
+        corners = f"{tags[0].corners[0]}"
+        print(f"TAG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{corners.split(' ')[0]}")
     else:
         distText="Dist: N/A"
         rotText = "Rot: N/A"
@@ -84,7 +88,8 @@ while True:
     font = cv2.FONT_HERSHEY_SIMPLEX
     org = 00, 185
     orgTwo = 00, 145
-    orgThree = 50, 50
+    orgThree = 30, 50
+    orgFour = 30, 400
     fontScale = 0.5
     color = (0, 0, 255)
     thickness = 1
@@ -111,9 +116,28 @@ while True:
         False
     ) 
 
-    promptText = ""
+    scaleImg = cv2.putText(rotTextImg, 
+        str(tagSizeFloat), 
+        orgFour, 
+        font, 
+        fontScale, 
+        color, 
+        thickness, 
+        cv2.LINE_AA, 
+        False
+    )
 
-    inPromptResize = False
+    thickness = 2
+
+    if tags:
+        startPointY = tuple(tags[0].corners[0].astype(int))
+        endPointY = tuple(tags[0].corners[1].astype(int))
+        print(startPointY)
+        print(endPointY)
+        colorY = (0, 255, 0)
+        imageWithY = cv2.line(scaleImg, startPointY, endPointY, colorY, thickness)
+    else:
+        imageWithY = scaleImg
 
     if keyboard.is_pressed("space"):
         inPromptResize = True
@@ -126,11 +150,11 @@ while True:
     
     if keyboard.is_pressed("v"):
         if(inPromptResize):
-            tagSizeFloat = float(30/(tags[0].pose_t[0]*100))
-            promptText = "Resized"
+            tagSizeFloat = float(0.15*(30/(tags[0].pose_t[2]*100)))
+            promptText = ""
             inPromptResize = False
 
-    readyImg = cv2.putText(distTextImg, 
+    readyImg = cv2.putText(imageWithY, 
         promptText, 
         orgThree, 
         font, 
@@ -143,7 +167,7 @@ while True:
 
     cv2.imshow('Webcam Feed', readyImg)
 
-    promptText = ""
+    
 
     # Press 'q' to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
