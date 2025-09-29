@@ -131,17 +131,19 @@ while True:
 
     if tags:
         startPointY = tuple(tags[0].corners[0].astype(int))
-        endPointY = tuple(tags[0].corners[1].astype(int))
-        print(startPointY)
-        print(endPointY)
+        endPointY = tuple(tags[0].corners[3].astype(int))
         colorY = (0, 255, 0)
         imageWithY = cv2.line(scaleImg, startPointY, endPointY, colorY, thickness)
+        startPointX = tuple(tags[0].corners[0].astype(int))
+        endPointX = tuple(tags[0].corners[1].astype(int))
+        colorX = (0, 0, 255)
+        imageWithX = cv2.line(imageWithY, startPointX, endPointX, colorX, thickness)
     else:
-        imageWithY = scaleImg
+        imageWithX = scaleImg
 
     if keyboard.is_pressed("space"):
         inPromptResize = True
-        promptText = "Hold camera 30cm away from apriltag, then press m. To cancel, press v."
+        promptText = "Hold camera 30cm away from apriltag, then press v. To cancel, press m."
         
     
     if keyboard.is_pressed("m"):
@@ -154,7 +156,7 @@ while True:
             promptText = ""
             inPromptResize = False
 
-    readyImg = cv2.putText(imageWithY, 
+    readyImg = cv2.putText(imageWithX, 
         promptText, 
         orgThree, 
         font, 
